@@ -133,9 +133,6 @@
           <source>${java.version}</source>
           <target>${java.version}</target>
           <release>${java.version}</release>
-          <compilerArgs>
-            <arg>--enable-preview</arg>
-          </compilerArgs>
         </configuration>
       </plugin>
 
@@ -149,6 +146,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.12</version>
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -181,12 +179,12 @@
         </executions>
       </plugin>
 
-      <!-- Surefire: JUnit 5 com preview habilitado -->
+      <!-- Surefire: JUnit 5 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <argLine>@{argLine} --enable-preview</argLine>
+          <argLine>@{argLine}</argLine>
         </configuration>
       </plugin>
 
@@ -203,7 +201,7 @@
           </execution>
         </executions>
         <configuration>
-          <argLine>@{argLine} --enable-preview</argLine>
+          <argLine>@{argLine}</argLine>
         </configuration>
       </plugin>
     </plugins>
