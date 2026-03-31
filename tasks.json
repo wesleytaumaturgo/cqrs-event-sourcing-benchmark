@@ -150,7 +150,7 @@
       "id": "TASK-008",
       "bc": "core",
       "title": "Integration Tests: paridade Manual vs Axon",
-      "status": "pending",
+      "status": "done",
       "estimate_hours": 2,
       "depends_on": [
         "TASK-005",
