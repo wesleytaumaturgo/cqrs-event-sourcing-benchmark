@@ -1,0 +1,202 @@
+{
+  "project": "cqrs-event-sourcing-benchmark",
+  "bc": "core",
+  "current_phase": "tdd",
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "bc": "core",
+      "title": "Domain Model: BankAccount aggregate puro",
+      "status": "done",
+      "estimate_hours": 3,
+      "depends_on": [],
+      "parallel": false,
+      "spec_ref": "docs/specs/core/requirements.md REQ-1, REQ-2, REQ-3, REQ-7",
+      "ears": [
+        "REQ-1.EARS-1",
+        "REQ-1.EARS-2",
+        "REQ-1.EARS-3",
+        "REQ-2.EARS-1",
+        "REQ-2.EARS-2",
+        "REQ-3.EARS-1",
+        "REQ-3.EARS-2",
+        "REQ-3.EARS-3",
+        "REQ-3.EARS-5",
+        "REQ-7.EARS-1",
+        "REQ-7.EARS-2"
+      ],
+      "test_file": "src/test/java/com/wesleytaumaturgo/cqrs/domain/account/BankAccountTest.java",
+      "description": "BankAccount aggregate, AccountId, Money (value objects), 3 eventos, 3 commands, 2 exceptions. Zero imports de framework."
+    },
+    {
+      "id": "TASK-002",
+      "bc": "core",
+      "title": "Flyway Migrations (V1 manual event store, V2 balance view, V3 axon)",
+      "status": "done",
+      "estimate_hours": 1,
+      "depends_on": [
+        "TASK-001"
+      ],
+      "parallel": false,
+      "spec_ref": "docs/specs/core/design.md §5 Migrations SQL",
+      "ears": [],
+      "test_file": null,
+      "description": "V1__manual_event_store.sql, V2__account_balance_view.sql, V3__axon_event_store.sql"
+    },
+    {
+      "id": "TASK-003",
+      "bc": "core",
+      "title": "Manual EventStore: interface + PostgresEventStore",
+      "status": "done",
+      "estimate_hours": 2,
+      "depends_on": [
+        "TASK-002"
+      ],
+      "parallel": true,
+      "spec_ref": "docs/specs/core/requirements.md REQ-2.EARS-3, REQ-3.EARS-4, REQ-5",
+      "ears": [
+        "REQ-2.EARS-3",
+        "REQ-3.EARS-4",
+        "REQ-5.EARS-1",
+        "REQ-5.EARS-2"
+      ],
+      "test_file": "src/test/java/com/wesleytaumaturgo/cqrs/manual/eventstore/PostgresEventStoreTest.java",
+      "description": "EventStore interface (port), StoredEvent (JPA entity), PostgresEventStore (adapter). Testa com Testcontainers."
+    },
+    {
+      "id": "TASK-004",
+      "bc": "core",
+      "title": "Manual Projection: AccountBalanceView + AccountBalanceProjection",
+      "status": "done",
+      "estimate_hours": 2,
+      "depends_on": [
+        "TASK-003"
+      ],
+      "parallel": false,
+      "spec_ref": "docs/specs/core/requirements.md REQ-4",
+      "ears": [
+        "REQ-4.EARS-1",
+        "REQ-4.EARS-2"
+      ],
+      "test_file": "src/test/java/com/wesleytaumaturgo/cqrs/manual/projection/AccountBalanceProjectionTest.java",
+      "description": "JPA entity AccountBalanceView, projetor AccountBalanceProjection que atualiza saldo após eventos."
+    },
+    {
+      "id": "TASK-005",
+      "bc": "core",
+      "title": "Manual Service + Controller + GlobalExceptionHandler",
+      "status": "done",
+      "estimate_hours": 2,
+      "depends_on": [
+        "TASK-004"
+      ],
+      "parallel": false,
+      "spec_ref": "docs/specs/core/requirements.md REQ-1, REQ-2, REQ-3",
+      "ears": [
+        "REQ-1.EARS-1",
+        "REQ-1.EARS-2",
+        "REQ-1.EARS-3",
+        "REQ-2.EARS-1",
+        "REQ-2.EARS-2",
+        "REQ-2.EARS-3",
+        "REQ-3.EARS-1",
+        "REQ-3.EARS-2",
+        "REQ-3.EARS-3",
+        "REQ-3.EARS-4",
+        "REQ-3.EARS-5"
+      ],
+      "test_file": "src/test/java/com/wesleytaumaturgo/cqrs/manual/adapter/ManualAccountControllerTest.java",
+      "description": "ManualAccountService, ManualAccountController, DTOs, GlobalExceptionHandler."
+    },
+    {
+      "id": "TASK-006",
+      "bc": "core",
+      "title": "Axon Aggregate: BankAccountAggregate + AxonConfig",
+      "status": "done",
+      "estimate_hours": 2,
+      "depends_on": [
+        "TASK-002"
+      ],
+      "parallel": true,
+      "spec_ref": "docs/specs/core/requirements.md REQ-1, REQ-2, REQ-3",
+      "ears": [
+        "REQ-1.EARS-1",
+        "REQ-2.EARS-1",
+        "REQ-3.EARS-1",
+        "REQ-3.EARS-2"
+      ],
+      "test_file": "src/test/java/com/wesleytaumaturgo/cqrs/axon/aggregate/BankAccountAggregateTest.java",
+      "description": "BankAccountAggregate (@Aggregate), AxonConfig (PostgreSQL backend, no Axon Server). Testa com AggregateTestFixture."
+    },
+    {
+      "id": "TASK-007",
+      "bc": "core",
+      "title": "Axon Projection + Service + Controller",
+      "status": "pending",
+      "estimate_hours": 2,
+      "depends_on": [
+        "TASK-006"
+      ],
+      "parallel": false,
+      "spec_ref": "docs/specs/core/requirements.md REQ-4",
+      "ears": [
+        "REQ-4.EARS-1",
+        "REQ-4.EARS-2"
+      ],
+      "test_file": "src/test/java/com/wesleytaumaturgo/cqrs/axon/projection/AxonAccountBalanceProjectionTest.java",
+      "description": "AxonAccountBalanceProjection (@EventHandler), AxonAccountService, AxonAccountController."
+    },
+    {
+      "id": "TASK-008",
+      "bc": "core",
+      "title": "Integration Tests: paridade Manual vs Axon",
+      "status": "pending",
+      "estimate_hours": 2,
+      "depends_on": [
+        "TASK-005",
+        "TASK-007"
+      ],
+      "parallel": false,
+      "spec_ref": "docs/specs/core/requirements.md REQ-6",
+      "ears": [
+        "REQ-6.EARS-1",
+        "REQ-6.EARS-2"
+      ],
+      "test_file": "src/test/java/com/wesleytaumaturgo/cqrs/integration/ManualAccountIntegrationTest.java",
+      "description": "ManualAccountIntegrationTest + AxonAccountIntegrationTest com @SpringBootTest + Testcontainers. Valida paridade de contratos."
+    },
+    {
+      "id": "TASK-009",
+      "bc": "core",
+      "title": "JMH Benchmarks: B1 latência, B2 throughput, B3 reconstituição, B4 projeção, B5 complexidade",
+      "status": "pending",
+      "estimate_hours": 4,
+      "depends_on": [
+        "TASK-008"
+      ],
+      "parallel": false,
+      "spec_ref": "docs/specs/core/requirements.md REQ-8",
+      "ears": [
+        "REQ-8.EARS-1",
+        "REQ-8.EARS-2"
+      ],
+      "test_file": "src/jmh/java/com/wesleytaumaturgo/cqrs/benchmark/CommandLatencyBenchmark.java",
+      "description": "5 classes JMH para os cenários de benchmark. Executa via mvn verify -P benchmark."
+    },
+    {
+      "id": "TASK-010",
+      "bc": "core",
+      "title": "ADR: decisões arquiteturais PostgreSQL event store e Axon backend",
+      "status": "pending",
+      "estimate_hours": 1,
+      "depends_on": [
+        "TASK-001"
+      ],
+      "parallel": false,
+      "spec_ref": "docs/specs/core/design.md §6 Decisões Técnicas",
+      "ears": [],
+      "test_file": null,
+      "description": "ADR-001 (PostgreSQL puro vs EventStoreDB) e ADR-002 (Axon PostgreSQL vs Axon Server)."
+    }
+  ]
+}
