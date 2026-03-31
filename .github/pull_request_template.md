@@ -1,26 +1,24 @@
 ## Descrição
-<!-- O que essa PR faz? Qual problema resolve? -->
+
+<!-- O que esta PR faz? Qual problema resolve? -->
 
 ## Tipo de mudança
-- [ ] Bug fix (não quebra funcionalidade existente)
-- [ ] Nova feature (adiciona funcionalidade sem quebrar existente)
-- [ ] Refactor (melhoria de código sem mudança de comportamento)
-- [ ] Documentação
-- [ ] Testes
 
-## Checklist de qualidade
-- [ ] Testes passando localmente (`make test`)
-- [ ] Cobertura mantida ≥ 70%
-- [ ] Sem `TODO`/`FIXME` sem issue relacionada
-- [ ] README atualizado (se comportamento externo mudou)
-- [ ] Sem credenciais ou segredos hardcoded
-- [ ] `.env.example` atualizado (se novas variáveis foram adicionadas)
+- [ ] feat: nova funcionalidade
+- [ ] fix: correção de bug
+- [ ] docs: documentação
+- [ ] refactor: refatoração
+- [ ] test: testes
+- [ ] chore: manutenção
 
-## Como testar
-<!-- Passos para revisor reproduzir e validar a mudança -->
-1.
-2.
+## Checklist
 
-## Referências
-<!-- Issues, ADRs, ou documentação relacionada -->
-- Closes #
+- [ ] Build passa (`make build`)
+- [ ] Testes passam (`make test`)
+- [ ] Cobertura >= 80%
+- [ ] Sem credenciais hardcoded
+- [ ] ADR criado (se houve decisão arquitetural)
+
+## Tasks relacionadas
+
+<!-- refs: TASK-XXX -->
