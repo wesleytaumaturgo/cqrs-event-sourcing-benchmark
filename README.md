@@ -104,7 +104,7 @@ ARCHITECTURE.md        # C4 + trade-offs
 
 ## Contexto
 
-Em 12 anos de Java enterprise na Sem Parar (Grupo Corpay), trabalhei com sistemas onde auditabilidade de transações e reconstrução de estado eram requisitos críticos. No **MBA em Arquitetura de Software (Full Cycle)**, estudei CQRS com Greg Young (criador do padrão) e Event Sourcing com Vaughn Vernon (*Implementing Domain-Driven Design*). A pergunta que nenhum curso responde — Axon vale o custo? — este benchmark responde com dados.
+Em 12 anos de Java enterprise, trabalhei com sistemas onde auditabilidade de transações e reconstrução de estado eram requisitos críticos. No **MBA em Arquitetura de Software (Full Cycle)**, estudei CQRS com Greg Young (criador do padrão) e Event Sourcing com Vaughn Vernon (*Implementing Domain-Driven Design*). A pergunta que nenhum curso responde — Axon vale o custo? — este benchmark responde com dados.
 
 ---
 
