@@ -38,11 +38,19 @@ BankAccount com os seguintes casos de uso:
 - Axon Framework + spring-boot + JPA sobre PostgreSQL
 - Paridade de infra com ES Manual → comparação justa
 
+### D3: docker-compose v1 incompatível — usar docker run direto
+- Máquina tem docker-compose v1.29.2 (bug com ContainerConfig em imagens modernas)
+- Plugin v2 não instalado em ~/.docker/cli-plugins/
+- **Workaround:** `docker run --name cqrs-postgres -p 5434:5432 ...`
+- **Fix permanente:** instalar plugin v2:
+  `mkdir -p ~/.docker/cli-plugins && curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose && chmod +x ~/.docker/cli-plugins/docker-compose`
+- **Portas ocupadas:** 5432 (recebei_db_1), 5433 (tasktracker-postgres), 5434 (cqrs-postgres — este projeto)
+
 ## Achados
 
 ## Próximos Passos
-- Decidir D1 e D2 antes de iniciar spec
-- Considerar: paridade de infra favorece PostgreSQL em ambas (D1-A + D2-B)
+- TDD fase RED: BankAccountTest (domínio puro)
+- PostgreSQL disponível em localhost:5434
 
 ## Log de Sessões
 
@@ -51,3 +59,6 @@ BankAccount com os seguintes casos de uso:
 - Contexto inicial registrado: domínio BankAccount, 2 implementações, 5 cenários, 2 decisões abertas.
 - D1 e D2 decididas: ambas usam PostgreSQL puro, sem Axon Server.
 - Prosseguindo com /nova-spec core.
+- Scaffold gerado: pom.xml, Dockerfile, docker-compose.yml, estrutura hexagonal.
+- BUILD SUCCESS confirmado (mvn clean verify).
+- D3 registrada: docker-compose v1 bug, workaround com docker run na porta 5434.
