@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    # Testcontainers sobrescreve esta URL via @DynamicPropertySource
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    com.wesleytaumaturgo.cqrs: DEBUG
+    org.axonframework: WARN
+    org.testcontainers: WARN
+    com.zaxxer.hikari: WARN
