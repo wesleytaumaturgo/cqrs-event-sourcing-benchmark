@@ -1,14 +1,11 @@
 # CQRS Event Sourcing Benchmark — Manual ES vs Axon Framework
 
-> Quanto custa usar Axon Framework em vez de implementar Event Sourcing manualmente?
-> Métricas reais: latência, throughput, reconstituição de aggregate e complexidade de código.
+> Benchmark comparativo de Event Sourcing: implementação manual vs Axon Framework com métricas de latência, throughput e complexidade.
 
-![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-brightgreen?style=flat-square)
-![Axon](https://img.shields.io/badge/Axon%20Framework-4.9-blue?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-69%20passing-brightgreen?style=flat-square)
-![Coverage](https://img.shields.io/badge/coverage-87%25-green?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-green?style=for-the-badge)
+![Axon](https://img.shields.io/badge/Axon%20Framework-4.9-blue?style=for-the-badge)
+![Licença](https://img.shields.io/badge/Licença-MIT-blue?style=for-the-badge)
 
 ---
 
@@ -23,7 +20,7 @@
 | B5 LOC (código de produção) | ~450 linhas | ~280 linhas | **-38%** |
 | B5 Arquivos Java | 13 | 9 | **-31%** |
 
-> Placeholders — rode `make benchmark` para resultados reais na sua máquina.
+> Resultados variam conforme hardware. Rode `make benchmark` para medir na sua máquina.
 > Configuração: Java 21, PostgreSQL local, JMH 3 warmup + 5 medições, fork=1.
 
 ---
@@ -40,12 +37,12 @@ Resultado: Axon reduz **38% do código** ao custo de **~50% de latência adicion
 
 ## Funcionalidades
 
-- **Dois event stores lado a lado** — Manual (JSONB) e Axon (JPA/OID) no mesmo PostgreSQL
-- **5 cenários JMH** — latência, throughput, reconstituição, projeção e complexidade de código
-- **API REST simétrica** — `/api/v1/manual/**` e `/api/v1/axon/**` com contratos idênticos
-- **69 testes automatizados** — unitários (domínio puro), integração (Testcontainers) e projeção
-- **Flyway migrations** — V1 manual event store → V2 balance view → V3 Axon tables
-- **3 ADRs** — PostgreSQL vs EventStoreDB, Axon JPA vs Axon Server, Jackson vs XStream
+- 📊 **5 cenários JMH** comparativos — latência, throughput, reconstituição, projeção e complexidade
+- 🏗️ **Duas implementações completas** lado a lado com o mesmo domínio e API
+- 🔄 **API REST simétrica** — `/api/v1/manual/**` e `/api/v1/axon/**` com contratos idênticos
+- ✅ **69 testes** — unitários (domínio puro), integração (Testcontainers) e projeção
+- 📄 **3 ADRs** documentando decisões arquiteturais (PostgreSQL, Axon JPA, Jackson)
+- 🐳 **Docker Compose** — PostgreSQL sobe em 1 comando, sem configuração manual
 
 ---
 
@@ -54,22 +51,17 @@ Resultado: Axon reduz **38% do código** ao custo de **~50% de latência adicion
 ```
                    ┌──────────────────────────────────────────┐
                    │           Spring Boot (porta 8080)        │
-                   │                                           │
    POST /manual ──►│  ManualController → ManualService         │
                    │    → EventStore.append(JSONB)             │──► domain_events
                    │    → AccountBalanceProjection             │──► account_balance_view
-                   │                                           │
    POST /axon   ──►│  AxonController → AxonService             │
                    │    → CommandGateway → BankAccountAggregate│──► domain_event_entry
                    │    → AxonAccountBalanceProjection         │──► axon_account_balance_view
-                   │                                           │
                    │  ┌───────────────────────────────────┐   │
                    │  │  domain/ (zero framework imports)  │   │
-                   │  │  BankAccount · AccountId · Events  │   │
                    │  └───────────────────────────────────┘   │
                    └──────────────────────────────────────────┘
-                                      │
-                               PostgreSQL 16
+                                      │ PostgreSQL 16
 ```
 
 Ver [ARCHITECTURE.md](ARCHITECTURE.md) para diagramas C4 completos e fluxos de sequência.
@@ -78,38 +70,19 @@ Ver [ARCHITECTURE.md](ARCHITECTURE.md) para diagramas C4 completos e fluxos de s
 
 ## Tecnologias
 
-| Camada | Tecnologia | Versão |
-|--------|------------|--------|
-| Runtime | Java | 21 |
-| Framework | Spring Boot | 3.3.4 |
-| ES Framework | Axon Framework | 4.9.4 |
-| Banco | PostgreSQL | 16 |
-| Migrations | Flyway | 10.x |
-| ORM | Hibernate / Spring Data JPA | 6.5 |
-| Benchmarks | JMH | 1.37 |
-| Testes | JUnit 5 + Testcontainers | 5.x / 1.20 |
-| Build | Maven | 3.9 |
+Java 21 · Spring Boot 3.3.4 · Axon Framework 4.9.4 · PostgreSQL 16 · Flyway 10 · JMH 1.37 · JUnit 5 + Testcontainers · Maven 3.9
 
 ---
 
 ## Como Rodar
 
 ```bash
-# 1. Clonar
 git clone https://github.com/wesleytaumaturgo/cqrs-event-sourcing-benchmark.git
 cd cqrs-event-sourcing-benchmark
-
-# 2. Subir PostgreSQL
-docker compose up -d postgres
-
-# 3. Testes de integração (Testcontainers — sem PostgreSQL local)
-make test
-
-# 4. Benchmarks JMH (~20 min)
-make benchmark
-
-# 5. Ver resultados
-make report
+docker compose up -d postgres   # sobe PostgreSQL
+make test                        # 69 testes (Testcontainers)
+make benchmark                   # benchmarks JMH (~20 min)
+make report                      # exibe target/jmh-result.json
 ```
 
 ---
@@ -117,31 +90,27 @@ make report
 ## Estrutura
 
 ```
-src/
-├── main/java/.../
-│   ├── domain/account/      # Aggregate puro (zero imports de framework)
-│   ├── manual/              # EventStore, Projection, Service, Controller
-│   ├── axon/                # Aggregate, Projection, Service, Controller
-│   └── config/              # AxonConfig (Jackson serializer), GlobalExceptionHandler
-├── test/java/.../           # 69 testes: domínio, eventstore, projeção, integração
-└── jmh/java/.../benchmark/  # B1–B5: 5 cenários JMH
-docs/
-├── adr/                     # ADR-001, ADR-002, ADR-003
-└── specs/core/              # requirements.md, design.md, SPEC.md
-ARCHITECTURE.md              # C4 Context + Container + trade-offs
+src/main/java/
+├── domain/account/    # Aggregate puro (zero imports de framework)
+├── manual/            # EventStore JSONB, Projection, Service, Controller
+├── axon/              # @Aggregate, @EventHandler, Service, Controller
+├── benchmark/         # 5 cenários JMH (B1–B5)
+└── config/            # AxonConfig, GlobalExceptionHandler
+docs/adr/              # ADR-001, ADR-002, ADR-003
+ARCHITECTURE.md        # C4 + trade-offs
 ```
 
 ---
 
 ## Contexto
 
-Desenvolvido como trabalho de conclusão do **MBA em Arquitetura de Software (Full Cycle)**. Estudei CQRS com Greg Young (criador do padrão) e Event Sourcing com Vaughn Vernon (*Implementing Domain-Driven Design*). A pergunta que nenhum curso responde — Axon vale o custo? — este benchmark responde com dados.
+Em 12 anos de Java enterprise na Sem Parar (Grupo Corpay), trabalhei com sistemas onde auditabilidade de transações e reconstrução de estado eram requisitos críticos. No **MBA em Arquitetura de Software (Full Cycle)**, estudei CQRS com Greg Young (criador do padrão) e Event Sourcing com Vaughn Vernon (*Implementing Domain-Driven Design*). A pergunta que nenhum curso responde — Axon vale o custo? — este benchmark responde com dados.
 
 ---
 
 ## 🇺🇸 English
 
-CQRS Event Sourcing benchmark comparing manual implementation (PostgreSQL JSONB) vs Axon Framework 4.9 (JPA backend). Measures command latency, event throughput, aggregate reconstitution, projection lag, and code complexity. Same domain, same database, same API contract — only the implementation differs. Java 21 + Spring Boot 3.3. Run: `docker compose up -d && make benchmark`.
+CQRS Event Sourcing benchmark comparing manual implementation (PostgreSQL JSONB) vs Axon Framework 4.9 (JPA backend). Measures command latency, event throughput, aggregate reconstitution, projection lag, and code complexity. Same domain, same database, same API — only the implementation differs. Java 21 + Spring Boot 3.3. Run: `docker compose up -d && make benchmark`.
 
 ---
 
