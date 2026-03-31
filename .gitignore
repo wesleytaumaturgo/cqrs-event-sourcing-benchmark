@@ -1,15 +1,12 @@
-# Magi — ferramentas locais (invisíveis no GitHub)
-.claude/
-CLAUDE.md
-AGENTS.md
-.project-config.json
-pf-progress.md
-tasks.md
-tasks.json
-docs/specs/
-docs/adr/
-.magi/
-session-state.md
+# Build
+target/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
 
 # Ambiente
 .env
@@ -17,20 +14,13 @@ session-state.md
 !.env.example
 *.log
 
-# Build
-target/
-dist/
-build/
+# OS
+.DS_Store
+Thumbs.db
+
+# Python (se aplicável)
 __pycache__/
 *.pyc
 .pytest_cache/
 .coverage
 htmlcov/
-
-# IDE
-.idea/
-.vscode/
-*.iml
-*.class
-*.jar
-.planning/
