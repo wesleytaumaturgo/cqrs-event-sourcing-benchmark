@@ -1,11 +1,13 @@
 -- V3__axon_event_store.sql
 -- Schema padrão Axon Framework (PostgreSQL, sem Axon Server)
 
+CREATE SEQUENCE domain_event_entry_seq START WITH 1 INCREMENT BY 50;
+
 CREATE TABLE domain_event_entry (
-    global_index         BIGSERIAL     NOT NULL,
+    global_index         BIGINT        NOT NULL DEFAULT nextval('domain_event_entry_seq'),
     event_identifier     VARCHAR(255)  NOT NULL UNIQUE,
-    meta_data            BYTEA,
-    payload              BYTEA         NOT NULL,
+    meta_data            OID,
+    payload              OID           NOT NULL,
     payload_revision     VARCHAR(255),
     payload_type         VARCHAR(255)  NOT NULL,
     time_stamp           VARCHAR(255)  NOT NULL,
@@ -24,8 +26,8 @@ CREATE TABLE snapshot_event_entry (
     sequence_number      BIGINT        NOT NULL,
     type                 VARCHAR(255)  NOT NULL,
     event_identifier     VARCHAR(255)  NOT NULL UNIQUE,
-    meta_data            BYTEA,
-    payload              BYTEA         NOT NULL,
+    meta_data            OID,
+    payload              OID           NOT NULL,
     payload_revision     VARCHAR(255),
     payload_type         VARCHAR(255)  NOT NULL,
     time_stamp           VARCHAR(255)  NOT NULL,

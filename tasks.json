@@ -132,7 +132,7 @@
       "id": "TASK-007",
       "bc": "core",
       "title": "Axon Projection + Service + Controller",
-      "status": "pending",
+      "status": "done",
       "estimate_hours": 2,
       "depends_on": [
         "TASK-006"
