@@ -1,4 +1,4 @@
-.PHONY: help build test run coverage clean docker-up docker-down benchmark report
+.PHONY: help build test run coverage clean docker-up docker-down benchmark report owasp
 
 MAVEN := $(shell command -v ./mvnw 2>/dev/null || echo mvn)
 
@@ -28,6 +28,9 @@ docker-down: ## Para e remove containers
 
 benchmark: docker-up ## Compila e executa benchmarks JMH (gera target/jmh-result.json)
 	$(MAVEN) verify -P benchmark
+
+owasp: ## Auditoria de vulnerabilidades OWASP (gera target/dependency-check/dependency-check-report.html)
+	$(MAVEN) verify -P owasp -DskipTests
 
 report: ## Gera relatório comparativo a partir do jmh-result.json
 	@echo "Relatório: target/jmh-result.json"
