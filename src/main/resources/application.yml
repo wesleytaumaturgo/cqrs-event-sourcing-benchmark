@@ -42,6 +42,10 @@ management:
 axon:
   axonserver:
     enabled: false
+  eventhandling:
+    processors:
+      axon-account-projection:
+        mode: subscribing
 
 logging:
   level:

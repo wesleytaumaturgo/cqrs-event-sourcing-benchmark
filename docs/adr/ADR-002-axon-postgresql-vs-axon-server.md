@@ -77,8 +77,23 @@ Ambientes CI (GitHub Actions) geralmente permitem PostgreSQL via `services:` nat
 - Sem suporte a clustering multi-instância sem configuração adicional
 - `TrackingEventProcessor` usa `token_entry` no PostgreSQL (implica contention em alta concorrência)
 
-### Observação sobre `token_entry` e `BYTEA vs OID`
+### Observação sobre `token_entry`, `BYTEA vs OID` e modo de processamento
 Durante a implementação (TASK-007), identificamos que Hibernate 6 mapeia `@Lob byte[]` para OID (PostgreSQL large object) em vez de BYTEA. O schema V3 foi ajustado para usar OID nas colunas `meta_data`, `payload` e `token`. Ver ADR-003 para a decisão de serialização relacionada.
+
+Adicionalmente, o `TrackingEventProcessor` (modo padrão do Axon) persiste segmentos de tracking na tabela `token_entry`. Em testes com Testcontainers, o Axon tenta escrever um token antes que o schema seja completamente inicializado, gerando `ERROR: column "token" is of type bytea but expression is of type oid`. Para eliminar essa dependência de `token_entry` em ambiente de benchmark/teste, o processador `axon-account-projection` foi configurado em modo **subscribing** via `application.yml`:
+
+```yaml
+axon:
+  eventhandling:
+    processors:
+      axon-account-projection:
+        mode: subscribing
+```
+
+`SubscribingEventProcessor` processa eventos de forma síncrona durante a publicação (no mesmo thread/transação), sem persistir tokens. Isso é adequado para o benchmark, pois:
+- O projeto usa um único aggregate em memória (sem catchup ou replay de eventos históricos)
+- `TrackingEventProcessor` seria necessário apenas para replay assíncrono cross-restart, que não é requisito do benchmark
+- Elimina a contention no `token_entry` mencionada anteriormente como consequência negativa
 
 ---
 
