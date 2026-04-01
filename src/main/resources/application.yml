@@ -44,6 +44,9 @@ axon:
     enabled: false
   eventhandling:
     processors:
+      # Subscribing mode: processa eventos síncronos no mesmo thread/transação,
+      # sem persistir tokens em token_entry. Evita conflito BYTEA vs OID
+      # (Hibernate 6 mapeia @Lob byte[] para OID; token_entry.token é BYTEA).
       axon-account-projection:
         mode: subscribing
 
