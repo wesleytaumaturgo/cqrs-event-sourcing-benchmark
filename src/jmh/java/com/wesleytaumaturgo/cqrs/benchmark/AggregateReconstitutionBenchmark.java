@@ -1,15 +1,21 @@
 package com.wesleytaumaturgo.cqrs.benchmark;
 
 import com.wesleytaumaturgo.cqrs.CqrsBenchmarkApplication;
+import com.wesleytaumaturgo.cqrs.axon.aggregate.BankAccountAggregate;
 import com.wesleytaumaturgo.cqrs.axon.service.AxonAccountService;
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
 import com.wesleytaumaturgo.cqrs.domain.account.BankAccount;
 import com.wesleytaumaturgo.cqrs.manual.eventstore.EventStore;
 import com.wesleytaumaturgo.cqrs.manual.service.ManualAccountService;
+import org.axonframework.messaging.unitofwork.DefaultUnitOfWork;
+import org.axonframework.messaging.unitofwork.UnitOfWork;
+import org.axonframework.modelling.command.Aggregate;
+import org.axonframework.modelling.command.Repository;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.ResolvableType;
 
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
@@ -18,8 +24,8 @@ import java.util.concurrent.TimeUnit;
  * B3 — Reconstrução de Aggregate via replay de 100 eventos.
  *
  * Manual: mede loadEvents() + BankAccount.reconstitute() diretamente.
- * Axon:   mede tempo de um comando sobre aggregate com 100 eventos no histórico
- *         (Axon faz replay internamente ao despachar o comando).
+ * Axon:   mede Repository.load(id), que faz replay interno dos eventos
+ *         para reconstituir o aggregate — sem emitir comando novo.
  * REQ-8.EARS-1
  */
 @BenchmarkMode(Mode.AverageTime)
@@ -39,10 +45,12 @@ public class AggregateReconstitutionBenchmark {
     private ManualAccountService manualService;
     private AxonAccountService   axonService;
     private EventStore           eventStore;
+    private Repository<BankAccountAggregate> repository;
 
     private String    accountId;
     private AccountId manualAccountId;
 
+    @SuppressWarnings("unchecked")
     @Setup(Level.Trial)
     public void setup() {
         // REQ-8.EARS-2
@@ -60,6 +68,10 @@ public class AggregateReconstitutionBenchmark {
         manualService = ctx.getBean(ManualAccountService.class);
         axonService   = ctx.getBean(AxonAccountService.class);
         eventStore    = ctx.getBean(EventStore.class);
+
+        var repoType = ResolvableType.forClassWithGenerics(Repository.class, BankAccountAggregate.class);
+        String[] beanNames = ctx.getBeanNamesForType(repoType);
+        repository = (Repository<BankAccountAggregate>) ctx.getBean(beanNames[0]);
 
         // Pré-popular conta com 100 eventos de depósito
         if ("manual".equals(impl)) {
@@ -84,7 +96,7 @@ public class AggregateReconstitutionBenchmark {
     /**
      * B3: Reconstitui aggregate a partir de 100 eventos persistidos.
      * Manual: replay explícito via EventStore.
-     * Axon:   emite comando (Axon reconstitui internamente via seu EventStore).
+     * Axon:   Repository.load(id) força replay interno — sem side effects.
      * REQ-8.EARS-1
      */
     @Benchmark
@@ -94,8 +106,17 @@ public class AggregateReconstitutionBenchmark {
             var account = BankAccount.reconstitute(manualAccountId, events);
             bh.consume(account);
         } else {
-            // Axon: cada comando força reconstitution interna do aggregate
-            bh.consume(axonService.deposit(accountId, BigDecimal.ONE));
+            // Axon: Repository.load() carrega eventos e reconstitui o aggregate via replay.
+            // Nenhum comando novo é emitido — mesma unidade de trabalho que o ramo manual.
+            UnitOfWork<?> uow = DefaultUnitOfWork.startAndGet(null);
+            try {
+                Aggregate<BankAccountAggregate> aggregate = repository.load(accountId);
+                bh.consume(aggregate.invoke(a -> a));
+                uow.commit();
+            } catch (Exception e) {
+                if (uow.isActive()) uow.rollback(e);
+                throw new RuntimeException(e);
+            }
         }
     }
 }
