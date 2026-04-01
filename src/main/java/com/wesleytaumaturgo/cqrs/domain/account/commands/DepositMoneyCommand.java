@@ -1,7 +1,6 @@
 package com.wesleytaumaturgo.cqrs.domain.account.commands;
 
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 
-import java.math.BigDecimal;
-
-public record DepositMoneyCommand(AccountId accountId, BigDecimal amount) {}
+public record DepositMoneyCommand(AccountId accountId, Money amount) {}

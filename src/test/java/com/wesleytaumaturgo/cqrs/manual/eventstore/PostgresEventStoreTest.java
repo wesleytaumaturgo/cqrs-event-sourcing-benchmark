@@ -2,6 +2,7 @@ package com.wesleytaumaturgo.cqrs.manual.eventstore;
 
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
 import com.wesleytaumaturgo.cqrs.domain.account.BankAccount;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.DepositMoneyCommand;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.OpenAccountCommand;
 import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
@@ -75,13 +76,13 @@ class PostgresEventStoreTest {
     @Test
     void loadEvents_shouldReturnEventsInAscendingSequenceOrder() {
         // REQ-5.EARS-1: extrato retorna eventos ordenados por sequence_number ASC
-        var account = BankAccount.open(new OpenAccountCommand("owner-1", new BigDecimal("100.00")));
+        var account = BankAccount.open(new OpenAccountCommand("owner-1", Money.of(new BigDecimal("100.00"))));
         var accountId = account.getAccountId();
 
         eventStore.append(accountId, account.getUncommittedEvents());
         account.clearUncommittedEvents();
 
-        account.deposit(new DepositMoneyCommand(accountId, new BigDecimal("50.00")));
+        account.deposit(new DepositMoneyCommand(accountId, Money.of(new BigDecimal("50.00"))));
         eventStore.append(accountId, account.getUncommittedEvents());
 
         var events = eventStore.loadEvents(accountId);

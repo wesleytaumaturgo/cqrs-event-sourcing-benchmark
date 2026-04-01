@@ -25,7 +25,7 @@ public class AxonAccountBalanceProjection {
         repository.save(new AxonBalanceView(
             event.accountId().toString(),
             event.ownerId(),
-            event.initialBalance(),
+            event.initialBalance().getValue(),
             event.occurredAt(),
             0L
         ));
@@ -35,7 +35,7 @@ public class AxonAccountBalanceProjection {
     @Transactional
     public void on(MoneyDepositedEvent event) {
         repository.findById(event.accountId().toString()).ifPresent(view -> {
-            view.setBalance(view.getBalance().add(event.amount()));
+            view.setBalance(view.getBalance().add(event.amount().getValue()));
             view.setLastUpdated(event.occurredAt());
             view.setVersion(view.getVersion() + 1);
             repository.save(view);
@@ -46,7 +46,7 @@ public class AxonAccountBalanceProjection {
     @Transactional
     public void on(MoneyWithdrawnEvent event) {
         repository.findById(event.accountId().toString()).ifPresent(view -> {
-            view.setBalance(view.getBalance().subtract(event.amount()));
+            view.setBalance(view.getBalance().subtract(event.amount().getValue()));
             view.setLastUpdated(event.occurredAt());
             view.setVersion(view.getVersion() + 1);
             repository.save(view);
