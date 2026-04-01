@@ -1,4 +1,4 @@
-.PHONY: help build test run coverage lint clean docker-up docker-down benchmark report
+.PHONY: help build test run coverage clean docker-up docker-down benchmark report
 
 MAVEN := $(shell command -v ./mvnw 2>/dev/null || echo mvn)
 
@@ -16,9 +16,6 @@ run: docker-up ## Sobe PostgreSQL e inicia a aplicação localmente
 
 coverage: ## Gera relatório de cobertura JaCoCo em target/site/jacoco/
 	$(MAVEN) verify jacoco:report
-
-lint: ## Verificação estática (Checkstyle)
-	$(MAVEN) checkstyle:check
 
 clean: ## Limpa artefatos de build
 	$(MAVEN) clean
