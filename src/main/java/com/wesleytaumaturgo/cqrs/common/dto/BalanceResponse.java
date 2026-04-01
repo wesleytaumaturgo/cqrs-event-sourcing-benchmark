@@ -1,4 +1,4 @@
-package com.wesleytaumaturgo.cqrs.manual.adapter.dto;
+package com.wesleytaumaturgo.cqrs.common.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;

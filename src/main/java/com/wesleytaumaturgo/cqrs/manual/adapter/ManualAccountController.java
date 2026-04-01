@@ -1,6 +1,6 @@
 package com.wesleytaumaturgo.cqrs.manual.adapter;
 
-import com.wesleytaumaturgo.cqrs.manual.adapter.dto.*;
+import com.wesleytaumaturgo.cqrs.common.dto.*;
 import com.wesleytaumaturgo.cqrs.manual.service.ManualAccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
