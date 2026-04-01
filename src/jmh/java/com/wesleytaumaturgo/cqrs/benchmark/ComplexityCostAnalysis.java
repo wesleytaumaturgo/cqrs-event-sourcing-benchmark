@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @Warmup(iterations = 1, time = 1)
 @Measurement(iterations = 3, time = 1)
-@Fork(value = 1, jvmArgs = {"-Xms256m", "-Xmx512m"})
+@Fork(value = 2, jvmArgs = {"-Xms256m", "-Xmx512m"})
 @State(Scope.Benchmark)
 public class ComplexityCostAnalysis {
 
