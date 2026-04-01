@@ -94,8 +94,9 @@ src/main/java/
 ├── domain/account/    # Aggregate puro (zero imports de framework)
 ├── manual/            # EventStore JSONB, Projection, Service, Controller
 ├── axon/              # @Aggregate, @EventHandler, Service, Controller
-├── benchmark/         # 5 cenários JMH (B1–B5)
 └── config/            # AxonConfig, GlobalExceptionHandler
+src/jmh/java/
+└── benchmark/         # 5 cenários JMH (B1–B5)
 docs/adr/              # ADR-001, ADR-002, ADR-003
 ARCHITECTURE.md        # C4 + trade-offs
 ```
