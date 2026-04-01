@@ -1,8 +1,5 @@
 package com.wesleytaumaturgo.cqrs.domain.account;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -19,7 +16,6 @@ public final class Money {
         this.amount = amount.setScale(2, RoundingMode.HALF_UP);
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Money of(BigDecimal amount) {
         return new Money(amount);
     }
@@ -40,7 +36,6 @@ public final class Money {
         return this.amount.compareTo(other.amount) >= 0;
     }
 
-    @JsonValue
     public BigDecimal getValue() {
         return amount;
     }
