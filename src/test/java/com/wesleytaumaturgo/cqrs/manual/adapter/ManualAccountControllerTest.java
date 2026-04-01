@@ -75,7 +75,7 @@ class ManualAccountControllerTest {
                         {"ownerId":"owner-1","initialBalance":-1.00}
                         """))
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.error").value("initialBalance must be non-negative"));
+            .andExpect(jsonPath("$.error").value("Money amount must not be negative"));
     }
 
     @Test
@@ -176,7 +176,7 @@ class ManualAccountControllerTest {
                         {"amount":-5.00}
                         """))
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.error").value("amount must be positive"));
+            .andExpect(jsonPath("$.error").value("Money amount must not be negative"));
     }
 
     @Test

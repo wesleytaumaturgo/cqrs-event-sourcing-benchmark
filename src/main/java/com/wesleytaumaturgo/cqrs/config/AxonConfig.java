@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ public class AxonConfig {
     @Primary
     public Serializer axonSerializer(ObjectMapper objectMapper) {
         objectMapper.registerModule(accountIdModule());
+        objectMapper.registerModule(moneyModule());
         return JacksonSerializer.builder()
             .objectMapper(objectMapper)
             .build();
@@ -50,6 +52,30 @@ public class AxonConfig {
             public AccountId deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
                 JsonNode node = p.getCodec().readTree(p);
                 return AccountId.of(UUID.fromString(node.get("id").asText()));
+            }
+        });
+
+        return module;
+    }
+
+    /**
+     * Serializa Money como BigDecimal (número JSON) e desserializa BigDecimal→Money.
+     * Mantém o domain VO livre de dependências de infraestrutura (Jackson).
+     */
+    private SimpleModule moneyModule() {
+        SimpleModule module = new SimpleModule("MoneyModule");
+
+        module.addSerializer(Money.class, new JsonSerializer<>() {
+            @Override
+            public void serialize(Money value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+                gen.writeNumber(value.getValue());
+            }
+        });
+
+        module.addDeserializer(Money.class, new JsonDeserializer<>() {
+            @Override
+            public Money deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+                return Money.of(p.getDecimalValue());
             }
         });
 

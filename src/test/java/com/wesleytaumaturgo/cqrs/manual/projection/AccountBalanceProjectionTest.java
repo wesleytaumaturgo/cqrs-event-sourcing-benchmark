@@ -1,6 +1,7 @@
 package com.wesleytaumaturgo.cqrs.manual.projection;
 
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
@@ -60,7 +61,7 @@ class AccountBalanceProjectionTest {
 
         // Popula projeção diretamente (sem usar event store)
         projection.onAccountOpened(new AccountOpenedEvent(
-            accountId, "owner-1", expectedBalance, Instant.now()
+            accountId, "owner-1", Money.of(expectedBalance), Instant.now()
         ));
 
         var view = projection.getBalance(accountId);
@@ -85,11 +86,11 @@ class AccountBalanceProjectionTest {
         // REQ-4.EARS-1 (cobertura do projetor: depósito atualiza saldo)
         var accountId = AccountId.generate();
         projection.onAccountOpened(new AccountOpenedEvent(
-            accountId, "owner-1", new BigDecimal("100.00"), Instant.now()
+            accountId, "owner-1", Money.of(new BigDecimal("100.00")), Instant.now()
         ));
 
         projection.onMoneyDeposited(new MoneyDepositedEvent(
-            accountId, new BigDecimal("50.00"), Instant.now()
+            accountId, Money.of(new BigDecimal("50.00")), Instant.now()
         ));
 
         var view = projection.getBalance(accountId);
@@ -101,11 +102,11 @@ class AccountBalanceProjectionTest {
         // REQ-4.EARS-1 (cobertura do projetor: saque atualiza saldo)
         var accountId = AccountId.generate();
         projection.onAccountOpened(new AccountOpenedEvent(
-            accountId, "owner-1", new BigDecimal("100.00"), Instant.now()
+            accountId, "owner-1", Money.of(new BigDecimal("100.00")), Instant.now()
         ));
 
         projection.onMoneyWithdrawn(new MoneyWithdrawnEvent(
-            accountId, new BigDecimal("30.00"), Instant.now()
+            accountId, Money.of(new BigDecimal("30.00")), Instant.now()
         ));
 
         var view = projection.getBalance(accountId);

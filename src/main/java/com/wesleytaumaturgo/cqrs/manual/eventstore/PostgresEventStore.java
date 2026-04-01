@@ -3,6 +3,7 @@ package com.wesleytaumaturgo.cqrs.manual.eventstore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
@@ -60,17 +61,17 @@ public class PostgresEventStore implements EventStore {
             if (event instanceof AccountOpenedEvent e) {
                 return objectMapper.writeValueAsString(Map.of(
                     "ownerId", e.ownerId(),
-                    "initialBalance", e.initialBalance().toPlainString(),
+                    "initialBalance", e.initialBalance().getValue().toPlainString(),
                     "occurredAt", e.occurredAt().toString()
                 ));
             } else if (event instanceof MoneyDepositedEvent e) {
                 return objectMapper.writeValueAsString(Map.of(
-                    "amount", e.amount().toPlainString(),
+                    "amount", e.amount().getValue().toPlainString(),
                     "occurredAt", e.occurredAt().toString()
                 ));
             } else if (event instanceof MoneyWithdrawnEvent e) {
                 return objectMapper.writeValueAsString(Map.of(
-                    "amount", e.amount().toPlainString(),
+                    "amount", e.amount().getValue().toPlainString(),
                     "occurredAt", e.occurredAt().toString()
                 ));
             }
@@ -87,17 +88,17 @@ public class PostgresEventStore implements EventStore {
                 case "AccountOpenedEvent" -> new AccountOpenedEvent(
                     accountId,
                     node.get("ownerId").asText(),
-                    new BigDecimal(node.get("initialBalance").asText()),
+                    Money.of(new BigDecimal(node.get("initialBalance").asText())),
                     Instant.parse(node.get("occurredAt").asText())
                 );
                 case "MoneyDepositedEvent" -> new MoneyDepositedEvent(
                     accountId,
-                    new BigDecimal(node.get("amount").asText()),
+                    Money.of(new BigDecimal(node.get("amount").asText())),
                     Instant.parse(node.get("occurredAt").asText())
                 );
                 case "MoneyWithdrawnEvent" -> new MoneyWithdrawnEvent(
                     accountId,
-                    new BigDecimal(node.get("amount").asText()),
+                    Money.of(new BigDecimal(node.get("amount").asText())),
                     Instant.parse(node.get("occurredAt").asText())
                 );
                 default -> throw new IllegalArgumentException(

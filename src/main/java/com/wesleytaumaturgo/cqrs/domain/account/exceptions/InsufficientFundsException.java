@@ -1,11 +1,10 @@
 package com.wesleytaumaturgo.cqrs.domain.account.exceptions;
 
-import java.math.BigDecimal;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 
 public class InsufficientFundsException extends RuntimeException {
 
-    public InsufficientFundsException(BigDecimal balance, BigDecimal requested) {
-        super(String.format("Insufficient funds: balance=%s, requested=%s",
-            balance.toPlainString(), requested.toPlainString()));
+    public InsufficientFundsException(Money balance, Money requested) {
+        super(String.format("Insufficient funds: balance=%s, requested=%s", balance, requested));
     }
 }

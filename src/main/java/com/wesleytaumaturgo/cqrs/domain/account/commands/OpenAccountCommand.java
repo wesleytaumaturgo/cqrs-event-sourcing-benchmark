@@ -1,5 +1,5 @@
 package com.wesleytaumaturgo.cqrs.domain.account.commands;
 
-import java.math.BigDecimal;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 
-public record OpenAccountCommand(String ownerId, BigDecimal initialBalance) {}
+public record OpenAccountCommand(String ownerId, Money initialBalance) {}

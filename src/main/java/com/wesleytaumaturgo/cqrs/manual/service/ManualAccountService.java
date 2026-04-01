@@ -2,6 +2,7 @@ package com.wesleytaumaturgo.cqrs.manual.service;
 
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
 import com.wesleytaumaturgo.cqrs.domain.account.BankAccount;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.DepositMoneyCommand;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.OpenAccountCommand;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.WithdrawMoneyCommand;
@@ -30,7 +31,7 @@ public class ManualAccountService {
     }
 
     public String openAccount(String ownerId, BigDecimal initialBalance) {
-        var account = BankAccount.open(new OpenAccountCommand(ownerId, initialBalance));
+        var account = BankAccount.open(new OpenAccountCommand(ownerId, Money.of(initialBalance)));
         var uncommitted = account.getUncommittedEvents();
 
         eventStore.append(account.getAccountId(), uncommitted);
@@ -47,7 +48,7 @@ public class ManualAccountService {
         var events = eventStore.loadEvents(accountId);
         var account = BankAccount.reconstitute(accountId, events);
 
-        account.deposit(new DepositMoneyCommand(accountId, amount));
+        account.deposit(new DepositMoneyCommand(accountId, Money.of(amount)));
         var uncommitted = account.getUncommittedEvents();
 
         eventStore.append(accountId, uncommitted);
@@ -64,7 +65,7 @@ public class ManualAccountService {
         var events = eventStore.loadEvents(accountId);
         var account = BankAccount.reconstitute(accountId, events);
 
-        account.withdraw(new WithdrawMoneyCommand(accountId, amount));
+        account.withdraw(new WithdrawMoneyCommand(accountId, Money.of(amount)));
         var uncommitted = account.getUncommittedEvents();
 
         eventStore.append(accountId, uncommitted);

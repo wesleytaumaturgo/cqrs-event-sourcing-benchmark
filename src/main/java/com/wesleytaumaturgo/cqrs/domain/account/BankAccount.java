@@ -9,27 +9,26 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.InsufficientFundsException;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BankAccount {
 
     private AccountId accountId;
     private String ownerId;
-    private BigDecimal balance;
+    private Money balance;
     private final List<DomainEvent> uncommittedEvents = new ArrayList<>();
 
     private BankAccount() {}
 
     public static BankAccount open(OpenAccountCommand cmd) {
-        if (cmd.ownerId() == null || cmd.ownerId().isBlank()) {
+        Objects.requireNonNull(cmd.ownerId(), "ownerId is required");
+        if (cmd.ownerId().isBlank()) {
             throw new IllegalArgumentException("ownerId is required");
         }
-        if (cmd.initialBalance() == null || cmd.initialBalance().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("initialBalance must be non-negative");
-        }
+        Objects.requireNonNull(cmd.initialBalance(), "initialBalance must be non-negative");
 
         BankAccount account = new BankAccount();
         account.raiseEvent(new AccountOpenedEvent(
@@ -44,7 +43,7 @@ public class BankAccount {
     public static BankAccount reconstitute(AccountId id, List<? extends DomainEvent> events) {
         BankAccount account = new BankAccount();
         account.accountId = id;
-        account.balance = BigDecimal.ZERO;
+        account.balance = Money.zero();
         for (DomainEvent event : events) {
             account.apply(event);
         }
@@ -52,17 +51,19 @@ public class BankAccount {
     }
 
     public void deposit(DepositMoneyCommand cmd) {
-        if (cmd.amount() == null || cmd.amount().compareTo(BigDecimal.ZERO) <= 0) {
+        Objects.requireNonNull(cmd.amount(), "amount must be positive");
+        if (cmd.amount().getValue().signum() == 0) {
             throw new IllegalArgumentException("amount must be positive");
         }
         raiseEvent(new MoneyDepositedEvent(accountId, cmd.amount(), Instant.now()));
     }
 
     public void withdraw(WithdrawMoneyCommand cmd) {
-        if (cmd.amount() == null || cmd.amount().compareTo(BigDecimal.ZERO) <= 0) {
+        Objects.requireNonNull(cmd.amount(), "amount must be positive");
+        if (cmd.amount().getValue().signum() == 0) {
             throw new IllegalArgumentException("amount must be positive");
         }
-        if (balance.compareTo(cmd.amount()) < 0) {
+        if (!balance.isGreaterThanOrEqualTo(cmd.amount())) {
             throw new InsufficientFundsException(balance, cmd.amount());
         }
         raiseEvent(new MoneyWithdrawnEvent(accountId, cmd.amount(), Instant.now()));
@@ -82,6 +83,8 @@ public class BankAccount {
             this.balance = this.balance.add(e.amount());
         } else if (event instanceof MoneyWithdrawnEvent e) {
             this.balance = this.balance.subtract(e.amount());
+        } else {
+            throw new IllegalStateException("Unknown event type: " + event.getClass().getSimpleName());
         }
     }
 
@@ -89,7 +92,7 @@ public class BankAccount {
         return accountId;
     }
 
-    public BigDecimal getBalance() {
+    public Money getBalance() {
         return balance;
     }
 

@@ -5,6 +5,7 @@ import com.wesleytaumaturgo.cqrs.axon.aggregate.OpenBankAccountAxonCommand;
 import com.wesleytaumaturgo.cqrs.axon.aggregate.WithdrawMoneyAxonCommand;
 import com.wesleytaumaturgo.cqrs.axon.projection.AxonAccountBalanceProjection;
 import com.wesleytaumaturgo.cqrs.axon.projection.AxonBalanceView;
+import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.modelling.command.AggregateNotFoundException;
@@ -27,13 +28,13 @@ public class AxonAccountService {
 
     public String openAccount(String ownerId, BigDecimal initialBalance) {
         var accountId = UUID.randomUUID().toString();
-        commandGateway.sendAndWait(new OpenBankAccountAxonCommand(accountId, ownerId, initialBalance));
+        commandGateway.sendAndWait(new OpenBankAccountAxonCommand(accountId, ownerId, Money.of(initialBalance)));
         return accountId;
     }
 
     public AxonBalanceView deposit(String accountId, BigDecimal amount) {
         try {
-            commandGateway.sendAndWait(new DepositMoneyAxonCommand(accountId, amount));
+            commandGateway.sendAndWait(new DepositMoneyAxonCommand(accountId, Money.of(amount)));
         } catch (AggregateNotFoundException ex) {
             throw new AccountNotFoundException(accountId);
         }
@@ -42,7 +43,7 @@ public class AxonAccountService {
 
     public AxonBalanceView withdraw(String accountId, BigDecimal amount) {
         try {
-            commandGateway.sendAndWait(new WithdrawMoneyAxonCommand(accountId, amount));
+            commandGateway.sendAndWait(new WithdrawMoneyAxonCommand(accountId, Money.of(amount)));
         } catch (AggregateNotFoundException ex) {
             throw new AccountNotFoundException(accountId);
         }
