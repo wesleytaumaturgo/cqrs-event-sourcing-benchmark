@@ -1,3 +1,3 @@
-package com.wesleytaumaturgo.cqrs.common.dto;
+package com.wesleytaumaturgo.cqrs.adapter.common.dto;
 
 public record AccountCreatedResponse(String accountId) {}

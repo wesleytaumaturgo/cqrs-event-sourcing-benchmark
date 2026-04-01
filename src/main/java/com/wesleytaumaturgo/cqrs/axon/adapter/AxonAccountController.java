@@ -1,10 +1,10 @@
 package com.wesleytaumaturgo.cqrs.axon.adapter;
 
 import com.wesleytaumaturgo.cqrs.axon.service.AxonAccountService;
-import com.wesleytaumaturgo.cqrs.common.dto.AccountCreatedResponse;
-import com.wesleytaumaturgo.cqrs.common.dto.BalanceResponse;
-import com.wesleytaumaturgo.cqrs.common.dto.MoneyOperationRequest;
-import com.wesleytaumaturgo.cqrs.common.dto.OpenAccountRequest;
+import com.wesleytaumaturgo.cqrs.adapter.common.dto.AccountCreatedResponse;
+import com.wesleytaumaturgo.cqrs.adapter.common.dto.BalanceResponse;
+import com.wesleytaumaturgo.cqrs.adapter.common.dto.MoneyOperationRequest;
+import com.wesleytaumaturgo.cqrs.adapter.common.dto.OpenAccountRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
