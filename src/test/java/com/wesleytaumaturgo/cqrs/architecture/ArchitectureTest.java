@@ -34,10 +34,11 @@ public class ArchitectureTest {
                     "..manual..",
                     "..axon..",
                     "..config..",
+                    "..common..",
                     "org.springframework..",
                     "org.axonframework.."
                 )
-            .because("domain é puro — zero dependências de infraestrutura ou frameworks");
+            .because("domain é puro — zero dependências de infraestrutura, frameworks ou DTOs de adapter");
 
     /**
      * Regra 2 — Manual não depende de Axon.
