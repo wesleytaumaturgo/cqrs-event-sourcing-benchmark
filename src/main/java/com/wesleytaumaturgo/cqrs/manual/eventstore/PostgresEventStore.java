@@ -24,11 +24,11 @@ import java.util.Map;
 /**
  * Adapter de persistência para o event store manual.
  *
- * A inserção de eventos usa uma subquery atômica para calcular o sequence_number,
- * eliminando a race condition do padrão read-max-then-insert.
- * A constraint uk_aggregate_sequence (aggregate_id, sequence_number) garante
- * que colisões concorrentes resultem em DataIntegrityViolationException
- * em vez de corrupção silenciosa de dados.
+ * Implementa optimistic locking via expectedVersion explícito.
+ * O sequence_number de cada evento é calculado como expectedVersion + 1 + i,
+ * e a constraint uk_aggregate_sequence (aggregate_id, sequence_number) garante
+ * que appends concorrentes com o mesmo expectedVersion resultem em
+ * OptimisticLockingException em vez de corrupção silenciosa de dados.
  */
 @Component
 public class PostgresEventStore implements EventStore {
