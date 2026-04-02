@@ -1,5 +1,8 @@
 package com.wesleytaumaturgo.cqrs.manual.eventstore;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
 import com.wesleytaumaturgo.cqrs.domain.account.BankAccount;
 import com.wesleytaumaturgo.cqrs.domain.account.Money;
@@ -10,6 +13,13 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.OptimisticLockingException;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +29,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Testcontainers

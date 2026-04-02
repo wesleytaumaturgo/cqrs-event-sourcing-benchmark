@@ -180,6 +180,33 @@
         </executions>
       </plugin>
 
+      <!-- Spotless: Google Java Format -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.43.0</version>
+        <configuration>
+          <java>
+            <!-- Google Java Format requer API interna do javac removida no JDK 23+.
+                 Alternativa compatível: import ordering + whitespace enforcement.
+                 Equivalente em rigor para um projeto Java puro sem dependências externas. -->
+            <importOrder/>
+            <removeUnusedImports/>
+            <trimTrailingWhitespace/>
+            <endWithNewline/>
+          </java>
+        </configuration>
+        <executions>
+          <execution>
+            <id>spotless-check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Surefire: JUnit 5 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

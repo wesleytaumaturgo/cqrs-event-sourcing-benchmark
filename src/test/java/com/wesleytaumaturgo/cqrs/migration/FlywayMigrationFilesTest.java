@@ -1,10 +1,9 @@
 package com.wesleytaumaturgo.cqrs.migration;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URL;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verifica que os 3 scripts de migration Flyway existem no classpath

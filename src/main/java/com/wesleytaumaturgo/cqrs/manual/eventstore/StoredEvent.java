@@ -1,11 +1,10 @@
 package com.wesleytaumaturgo.cqrs.manual.eventstore;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * JPA entity para a tabela domain_events (V1 migration).

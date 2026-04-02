@@ -1,7 +1,6 @@
 package com.wesleytaumaturgo.cqrs.manual.projection;
 
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;

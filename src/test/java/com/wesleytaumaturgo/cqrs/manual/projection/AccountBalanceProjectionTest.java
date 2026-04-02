@@ -1,11 +1,16 @@
 package com.wesleytaumaturgo.cqrs.manual.projection;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
 import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
+import java.math.BigDecimal;
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +20,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Testcontainers

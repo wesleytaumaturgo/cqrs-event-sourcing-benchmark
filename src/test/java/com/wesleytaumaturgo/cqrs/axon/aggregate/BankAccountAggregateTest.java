@@ -1,23 +1,22 @@
 package com.wesleytaumaturgo.cqrs.axon.aggregate;
 
+import static org.axonframework.test.matchers.Matchers.messageWithPayload;
+import static org.axonframework.test.matchers.Matchers.sequenceOf;
+import static org.hamcrest.Matchers.instanceOf;
+
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
 import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.InsufficientFundsException;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.UUID;
-
-import static org.axonframework.test.matchers.Matchers.messageWithPayload;
-import static org.axonframework.test.matchers.Matchers.sequenceOf;
-import static org.hamcrest.Matchers.instanceOf;
 
 class BankAccountAggregateTest {
 
