@@ -31,7 +31,7 @@ benchmark: docker-up ## Compila e executa benchmarks JMH (gera target/jmh-result
 
 owasp: ## Auditoria OWASP — requer NVD_API_KEY (gratuita: https://nvd.nist.gov/developers/request-an-api-key)
 	@test -n "$$NVD_API_KEY" || (echo "Erro: NVD_API_KEY não definida. Obtenha em https://nvd.nist.gov/developers/request-an-api-key" && exit 1)
-	$(MAVEN) verify -P owasp -DskipTests -DnvdApiKey=$$NVD_API_KEY
+	$(MAVEN) verify -P owasp -DskipTests -Djacoco.skip=true -DnvdApiKey=$$NVD_API_KEY
 
 report: ## Gera relatório comparativo a partir do jmh-result.json
 	@echo "Relatório: target/jmh-result.json"

@@ -347,6 +347,9 @@
                    Passe via: mvn verify -P owasp -DnvdApiKey=<sua-key>
                    ou defina NVD_API_KEY no ambiente e use: make owasp -->
               <nvdApiKey>${nvdApiKey}</nvdApiKey>
+              <!-- RetireJS analisa dependências JavaScript — irrelevante para projeto Java puro.
+                   Desabilitado para evitar timeout em ambientes sem acesso a raw.githubusercontent.com -->
+              <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
               <formats>
                 <format>HTML</format>
                 <format>JSON</format>
