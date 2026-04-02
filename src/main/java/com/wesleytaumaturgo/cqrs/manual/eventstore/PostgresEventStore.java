@@ -9,6 +9,8 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
+import com.wesleytaumaturgo.cqrs.domain.account.exceptions.OptimisticLockingException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +35,7 @@ public class PostgresEventStore implements EventStore {
 
     private static final String APPEND_SQL = """
         INSERT INTO domain_events (aggregate_id, aggregate_type, sequence_number, event_type, payload, occurred_at)
-        VALUES (?::uuid, ?,
-                (SELECT COALESCE(MAX(sequence_number), -1) + 1 FROM domain_events WHERE aggregate_id = ?::uuid),
-                ?, ?::jsonb, ?)
+        VALUES (?::uuid, ?, ?, ?, ?::jsonb, ?)
         """;
 
     private final StoredEventRepository repository;
@@ -52,17 +52,23 @@ public class PostgresEventStore implements EventStore {
 
     @Override
     @Transactional
-    public void append(AccountId accountId, List<DomainEvent> events) {
+    public void append(AccountId accountId, long expectedVersion, List<DomainEvent> events) {
         String id = accountId.getValue().toString();
-        for (DomainEvent event : events) {
-            jdbc.update(APPEND_SQL,
-                id,
-                "BankAccount",
-                id,
-                event.getClass().getSimpleName(),
-                serialize(event),
-                Timestamp.from(event.occurredAt())
-            );
+        for (int i = 0; i < events.size(); i++) {
+            DomainEvent event = events.get(i);
+            long sequenceNumber = expectedVersion + 1 + i;
+            try {
+                jdbc.update(APPEND_SQL,
+                    id,
+                    "BankAccount",
+                    sequenceNumber,
+                    event.getClass().getSimpleName(),
+                    serialize(event),
+                    Timestamp.from(event.occurredAt())
+                );
+            } catch (DataIntegrityViolationException e) {
+                throw new OptimisticLockingException(accountId.getValue(), expectedVersion);
+            }
         }
     }
 

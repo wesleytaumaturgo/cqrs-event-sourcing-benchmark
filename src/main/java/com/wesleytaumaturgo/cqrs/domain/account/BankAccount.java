@@ -19,6 +19,7 @@ public class BankAccount {
     private AccountId accountId;
     private String ownerId;
     private Money balance;
+    private long version = -1L;
     private final List<DomainEvent> uncommittedEvents = new ArrayList<>();
 
     private BankAccount() {}
@@ -46,6 +47,7 @@ public class BankAccount {
         account.balance = Money.zero();
         for (DomainEvent event : events) {
             account.apply(event);
+            account.version++;
         }
         return account;
     }
@@ -90,6 +92,10 @@ public class BankAccount {
 
     public AccountId getAccountId() {
         return accountId;
+    }
+
+    public long getVersion() {
+        return version;
     }
 
     public Money getBalance() {
