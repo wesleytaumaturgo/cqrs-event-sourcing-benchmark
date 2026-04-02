@@ -342,6 +342,11 @@
             <version>${owasp-dc.version}</version>
             <configuration>
               <failBuildOnCVSS>7</failBuildOnCVSS>
+              <!-- NVD API Key obrigatória desde OWASP DC 9+.
+                   Obtenha gratuitamente: https://nvd.nist.gov/developers/request-an-api-key
+                   Passe via: mvn verify -P owasp -DnvdApiKey=<sua-key>
+                   ou defina NVD_API_KEY no ambiente e use: make owasp -->
+              <nvdApiKey>${nvdApiKey}</nvdApiKey>
               <formats>
                 <format>HTML</format>
                 <format>JSON</format>
