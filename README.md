@@ -6,6 +6,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-green?style=for-the-badge)
 ![Axon](https://img.shields.io/badge/Axon%20Framework-4.9-blue?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licença-MIT-blue?style=for-the-badge)
+![CI](https://github.com/wesleytaumaturgo/cqrs-event-sourcing-benchmark/actions/workflows/ci.yml/badge.svg?style=for-the-badge)
 
 ---
 
@@ -40,7 +41,7 @@ Resultado: Axon reduz **38% do código** ao custo de **~50% de latência adicion
 - 📊 **5 cenários JMH** comparativos — latência, throughput, reconstituição, projeção e complexidade
 - 🏗️ **Duas implementações completas** lado a lado com o mesmo domínio e API
 - 🔄 **API REST simétrica** — `/api/v1/manual/**` e `/api/v1/axon/**` com contratos idênticos
-- ✅ **69 testes** — unitários (domínio puro), integração (Testcontainers) e projeção
+- ✅ **77 testes** — unitários (domínio puro), integração (Testcontainers) e projeção
 - 📄 **3 ADRs** documentando decisões arquiteturais (PostgreSQL, Axon JPA, Jackson)
 - 🐳 **Docker Compose** — PostgreSQL sobe em 1 comando, sem configuração manual
 
@@ -80,7 +81,7 @@ Java 21 · Spring Boot 3.3.4 · Axon Framework 4.9.4 · PostgreSQL 16 · Flyway 
 git clone https://github.com/wesleytaumaturgo/cqrs-event-sourcing-benchmark.git
 cd cqrs-event-sourcing-benchmark
 docker compose up -d postgres   # sobe PostgreSQL
-make test                        # 69 testes (Testcontainers)
+make test                        # 77 testes (Testcontainers)
 make benchmark                   # benchmarks JMH (~20 min)
 make report                      # exibe target/jmh-result.json
 ```
