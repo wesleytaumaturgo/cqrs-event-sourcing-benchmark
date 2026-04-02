@@ -9,39 +9,58 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Adapter de persistência para o event store manual.
+ *
+ * A inserção de eventos usa uma subquery atômica para calcular o sequence_number,
+ * eliminando a race condition do padrão read-max-then-insert.
+ * A constraint uk_aggregate_sequence (aggregate_id, sequence_number) garante
+ * que colisões concorrentes resultem em DataIntegrityViolationException
+ * em vez de corrupção silenciosa de dados.
+ */
 @Component
 public class PostgresEventStore implements EventStore {
 
+    private static final String APPEND_SQL = """
+        INSERT INTO domain_events (aggregate_id, aggregate_type, sequence_number, event_type, payload, occurred_at)
+        VALUES (?::uuid, ?,
+                (SELECT COALESCE(MAX(sequence_number), -1) + 1 FROM domain_events WHERE aggregate_id = ?::uuid),
+                ?, ?::jsonb, ?)
+        """;
+
     private final StoredEventRepository repository;
+    private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
 
-    public PostgresEventStore(StoredEventRepository repository, ObjectMapper objectMapper) {
+    public PostgresEventStore(StoredEventRepository repository,
+                              JdbcTemplate jdbc,
+                              ObjectMapper objectMapper) {
         this.repository = repository;
+        this.jdbc = jdbc;
         this.objectMapper = objectMapper;
     }
 
     @Override
     public void append(AccountId accountId, List<DomainEvent> events) {
-        long nextSeq = repository.findMaxSequenceNumber(accountId.getValue())
-            .map(n -> n + 1)
-            .orElse(0L);
-
+        String id = accountId.getValue().toString();
         for (DomainEvent event : events) {
-            repository.save(new StoredEvent(
-                accountId.getValue(),
+            jdbc.update(APPEND_SQL,
+                id,
                 "BankAccount",
-                nextSeq++,
+                id,
                 event.getClass().getSimpleName(),
                 serialize(event),
-                event.occurredAt()
-            ));
+                Timestamp.from(event.occurredAt())
+            );
         }
     }
 
