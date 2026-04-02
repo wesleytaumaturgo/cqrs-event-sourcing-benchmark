@@ -231,11 +231,11 @@ domain/ não importa nada fora de domain/
 ```
 src/jmh/java/
 └── benchmark/
-    ├── CommandLatencyBenchmark.java       (B1 — latência end-to-end)
-    ├── ThroughputBenchmark.java           (B2 — throughput op/s)
-    ├── EventReconstitutionBenchmark.java  (B3 — replay de histórico)
-    ├── ProjectionUpdateBenchmark.java     (B4 — custo de projeção)
-    └── ComplexityCostAnalysis.java        (B5 — overhead por operação)
+    ├── CommandLatencyBenchmark.java          (B1 — latência end-to-end)
+    ├── EventThroughputBenchmark.java         (B2 — throughput op/s)
+    ├── AggregateReconstitutionBenchmark.java (B3 — replay de histórico)
+    ├── ProjectionBenchmark.java              (B4 — custo de projeção)
+    └── ComplexityCostAnalysis.java           (B5 — overhead por operação)
 ```
 
 Execução: `mvn verify -P benchmark`
