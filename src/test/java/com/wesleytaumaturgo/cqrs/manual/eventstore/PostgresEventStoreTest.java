@@ -21,6 +21,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -108,10 +109,10 @@ class PostgresEventStoreTest {
 
         // Pré-criar eventos independentes por thread — sem estado compartilhado entre threads
         var deposit1 = List.<DomainEvent>of(
-            new MoneyDepositedEvent(accountId, Money.of(new BigDecimal("10.00")), java.time.Instant.now())
+            new MoneyDepositedEvent(accountId, Money.of(new BigDecimal("10.00")), Instant.now())
         );
         var deposit2 = List.<DomainEvent>of(
-            new MoneyDepositedEvent(accountId, Money.of(new BigDecimal("20.00")), java.time.Instant.now())
+            new MoneyDepositedEvent(accountId, Money.of(new BigDecimal("20.00")), Instant.now())
         );
 
         CountDownLatch start = new CountDownLatch(1);
