@@ -5,6 +5,8 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AccountBalanceProjection {
+
+    private static final Logger log = LoggerFactory.getLogger(AccountBalanceProjection.class);
 
     private final AccountBalanceViewRepository repository;
 
@@ -36,20 +40,26 @@ public class AccountBalanceProjection {
     }
 
     public void onMoneyDeposited(MoneyDepositedEvent event) {
-        repository.findById(event.accountId().getValue()).ifPresent(view -> {
-            view.setBalance(view.getBalance().add(event.amount().getValue()));
-            view.setLastUpdated(event.occurredAt());
-            view.setVersion(view.getVersion() + 1);
-            repository.save(view);
-        });
+        repository.findById(event.accountId().getValue()).ifPresentOrElse(
+            view -> {
+                view.setBalance(view.getBalance().add(event.amount().getValue()));
+                view.setLastUpdated(event.occurredAt());
+                view.setVersion(view.getVersion() + 1);
+                repository.save(view);
+            },
+            () -> log.warn("MoneyDepositedEvent recebido para conta inexistente: {}", event.accountId())
+        );
     }
 
     public void onMoneyWithdrawn(MoneyWithdrawnEvent event) {
-        repository.findById(event.accountId().getValue()).ifPresent(view -> {
-            view.setBalance(view.getBalance().subtract(event.amount().getValue()));
-            view.setLastUpdated(event.occurredAt());
-            view.setVersion(view.getVersion() + 1);
-            repository.save(view);
-        });
+        repository.findById(event.accountId().getValue()).ifPresentOrElse(
+            view -> {
+                view.setBalance(view.getBalance().subtract(event.amount().getValue()));
+                view.setLastUpdated(event.occurredAt());
+                view.setVersion(view.getVersion() + 1);
+                repository.save(view);
+            },
+            () -> log.warn("MoneyWithdrawnEvent recebido para conta inexistente: {}", event.accountId())
+        );
     }
 }
