@@ -2,7 +2,6 @@ package com.wesleytaumaturgo.cqrs.manual.eventstore;
 
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
 import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
-
 import java.util.List;
 
 /**

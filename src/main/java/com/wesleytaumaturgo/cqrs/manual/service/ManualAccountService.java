@@ -12,11 +12,10 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.manual.eventstore.EventStore;
 import com.wesleytaumaturgo.cqrs.manual.projection.AccountBalanceProjection;
 import com.wesleytaumaturgo.cqrs.manual.projection.AccountBalanceView;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

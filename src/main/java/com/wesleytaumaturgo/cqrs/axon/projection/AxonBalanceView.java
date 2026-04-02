@@ -1,7 +1,6 @@
 package com.wesleytaumaturgo.cqrs.axon.projection;
 
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 

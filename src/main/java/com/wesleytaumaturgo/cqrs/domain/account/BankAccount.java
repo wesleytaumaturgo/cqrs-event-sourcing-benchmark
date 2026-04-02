@@ -8,7 +8,6 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.InsufficientFundsException;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

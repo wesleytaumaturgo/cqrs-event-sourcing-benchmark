@@ -1,5 +1,7 @@
 package com.wesleytaumaturgo.cqrs.domain.account;
 
+import static org.assertj.core.api.Assertions.*;
+
 import com.wesleytaumaturgo.cqrs.domain.account.commands.DepositMoneyCommand;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.OpenAccountCommand;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.WithdrawMoneyCommand;
@@ -7,12 +9,9 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.InsufficientFundsException;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class BankAccountTest {
 

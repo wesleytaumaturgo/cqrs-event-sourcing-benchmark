@@ -7,12 +7,11 @@ import com.wesleytaumaturgo.cqrs.axon.projection.AxonAccountBalanceProjection;
 import com.wesleytaumaturgo.cqrs.axon.projection.AxonBalanceView;
 import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
+import java.math.BigDecimal;
+import java.util.UUID;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.modelling.command.AggregateNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.UUID;
 
 @Service
 public class AxonAccountService {

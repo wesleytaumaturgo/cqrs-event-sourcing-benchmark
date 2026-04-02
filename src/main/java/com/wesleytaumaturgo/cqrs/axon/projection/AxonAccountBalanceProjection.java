@@ -1,9 +1,9 @@
 package com.wesleytaumaturgo.cqrs.axon.projection;
 
-import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
 import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
+import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.slf4j.Logger;

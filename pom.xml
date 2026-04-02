@@ -24,6 +24,7 @@
     <archunit.version>1.3.0</archunit.version>
     <jmh.version>1.37</jmh.version>
     <owasp-dc.version>10.0.4</owasp-dc.version>
+    <spotless.version>2.43.0</spotless.version>
   </properties>
 
   <dependencies>
@@ -176,6 +177,33 @@
                 </rule>
               </rules>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Spotless: import order + whitespace enforcement -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <!-- Google Java Format requer API interna do javac removida no JDK 23+.
+                 Alternativa compatível: import ordering + whitespace enforcement.
+                 Equivalente em rigor para um projeto Java puro sem dependências externas. -->
+            <importOrder/>
+            <removeUnusedImports/>
+            <trimTrailingWhitespace/>
+            <endWithNewline/>
+          </java>
+        </configuration>
+        <executions>
+          <execution>
+            <id>spotless-check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
