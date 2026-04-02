@@ -11,7 +11,13 @@ import java.util.List;
  */
 public interface EventStore {
 
-    void append(AccountId accountId, List<DomainEvent> events);
+    /**
+     * Persiste eventos para o aggregate identificado por accountId.
+     *
+     * @param expectedVersion versão do último evento já commitado (-1 se o aggregate é novo).
+     *                        O banco rejeita com OptimisticLockingException se a versão já foi ocupada.
+     */
+    void append(AccountId accountId, long expectedVersion, List<DomainEvent> events);
 
     List<DomainEvent> loadEvents(AccountId accountId);
 }

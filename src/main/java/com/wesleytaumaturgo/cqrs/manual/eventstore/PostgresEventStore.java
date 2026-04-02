@@ -9,6 +9,8 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
+import com.wesleytaumaturgo.cqrs.domain.account.exceptions.OptimisticLockingException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,20 +24,18 @@ import java.util.Map;
 /**
  * Adapter de persistência para o event store manual.
  *
- * A inserção de eventos usa uma subquery atômica para calcular o sequence_number,
- * eliminando a race condition do padrão read-max-then-insert.
- * A constraint uk_aggregate_sequence (aggregate_id, sequence_number) garante
- * que colisões concorrentes resultem em DataIntegrityViolationException
- * em vez de corrupção silenciosa de dados.
+ * Implementa optimistic locking via expectedVersion explícito.
+ * O sequence_number de cada evento é calculado como expectedVersion + 1 + i,
+ * e a constraint uk_aggregate_sequence (aggregate_id, sequence_number) garante
+ * que appends concorrentes com o mesmo expectedVersion resultem em
+ * OptimisticLockingException em vez de corrupção silenciosa de dados.
  */
 @Component
 public class PostgresEventStore implements EventStore {
 
     private static final String APPEND_SQL = """
         INSERT INTO domain_events (aggregate_id, aggregate_type, sequence_number, event_type, payload, occurred_at)
-        VALUES (?::uuid, ?,
-                (SELECT COALESCE(MAX(sequence_number), -1) + 1 FROM domain_events WHERE aggregate_id = ?::uuid),
-                ?, ?::jsonb, ?)
+        VALUES (?::uuid, ?, ?, ?, ?::jsonb, ?)
         """;
 
     private final StoredEventRepository repository;
@@ -52,17 +52,23 @@ public class PostgresEventStore implements EventStore {
 
     @Override
     @Transactional
-    public void append(AccountId accountId, List<DomainEvent> events) {
+    public void append(AccountId accountId, long expectedVersion, List<DomainEvent> events) {
         String id = accountId.getValue().toString();
-        for (DomainEvent event : events) {
-            jdbc.update(APPEND_SQL,
-                id,
-                "BankAccount",
-                id,
-                event.getClass().getSimpleName(),
-                serialize(event),
-                Timestamp.from(event.occurredAt())
-            );
+        for (int i = 0; i < events.size(); i++) {
+            DomainEvent event = events.get(i);
+            long sequenceNumber = expectedVersion + 1 + i;
+            try {
+                jdbc.update(APPEND_SQL,
+                    id,
+                    "BankAccount",
+                    sequenceNumber,
+                    event.getClass().getSimpleName(),
+                    serialize(event),
+                    Timestamp.from(event.occurredAt())
+                );
+            } catch (DataIntegrityViolationException e) {
+                throw new OptimisticLockingException(accountId.getValue(), expectedVersion);
+            }
         }
     }
 

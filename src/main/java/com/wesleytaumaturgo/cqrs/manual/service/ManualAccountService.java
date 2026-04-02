@@ -34,7 +34,7 @@ public class ManualAccountService {
         var account = BankAccount.open(new OpenAccountCommand(ownerId, Money.of(initialBalance)));
         var uncommitted = account.getUncommittedEvents();
 
-        eventStore.append(account.getAccountId(), uncommitted);
+        eventStore.append(account.getAccountId(), account.getVersion(), uncommitted);
 
         uncommitted.forEach(event -> {
             if (event instanceof AccountOpenedEvent e) projection.onAccountOpened(e);
@@ -51,7 +51,7 @@ public class ManualAccountService {
         account.deposit(new DepositMoneyCommand(accountId, Money.of(amount)));
         var uncommitted = account.getUncommittedEvents();
 
-        eventStore.append(accountId, uncommitted);
+        eventStore.append(accountId, account.getVersion(), uncommitted);
 
         uncommitted.forEach(event -> {
             if (event instanceof MoneyDepositedEvent e) projection.onMoneyDeposited(e);
@@ -68,7 +68,7 @@ public class ManualAccountService {
         account.withdraw(new WithdrawMoneyCommand(accountId, Money.of(amount)));
         var uncommitted = account.getUncommittedEvents();
 
-        eventStore.append(accountId, uncommitted);
+        eventStore.append(accountId, account.getVersion(), uncommitted);
 
         uncommitted.forEach(event -> {
             if (event instanceof MoneyWithdrawnEvent e) projection.onMoneyWithdrawn(e);
