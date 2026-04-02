@@ -6,6 +6,7 @@ import com.wesleytaumaturgo.cqrs.domain.account.Money;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.DepositMoneyCommand;
 import com.wesleytaumaturgo.cqrs.domain.account.commands.OpenAccountCommand;
 import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
+import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +21,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -102,45 +102,44 @@ class PostgresEventStoreTest {
     @Test
     void append_shouldEnforceUniqueSequence_underConcurrentDeposits() throws Exception {
         // Garante que dois appends concorrentes não corrompem sequência (uk_aggregate_sequence)
-        var account = BankAccount.open(new OpenAccountCommand("owner-race", Money.of(new BigDecimal("1000.00"))));
-        var accountId = account.getAccountId();
-        eventStore.append(accountId, account.getUncommittedEvents());
-        account.clearUncommittedEvents();
+        var seed = BankAccount.open(new OpenAccountCommand("owner-race", Money.of(new BigDecimal("1000.00"))));
+        var accountId = seed.getAccountId();
+        eventStore.append(accountId, seed.getUncommittedEvents());
 
-        int threads = 2;
-        CountDownLatch ready = new CountDownLatch(threads);
+        // Pré-criar eventos independentes por thread — sem estado compartilhado entre threads
+        var deposit1 = List.<DomainEvent>of(
+            new MoneyDepositedEvent(accountId, Money.of(new BigDecimal("10.00")), java.time.Instant.now())
+        );
+        var deposit2 = List.<DomainEvent>of(
+            new MoneyDepositedEvent(accountId, Money.of(new BigDecimal("20.00")), java.time.Instant.now())
+        );
+
         CountDownLatch start = new CountDownLatch(1);
-        ExecutorService pool = Executors.newFixedThreadPool(threads);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
 
-        List<Future<Boolean>> futures = new ArrayList<>();
-        for (int i = 0; i < threads; i++) {
-            final int idx = i;
-            futures.add(pool.submit(() -> {
-                ready.countDown();
-                start.await();
-                try {
-                    account.deposit(new DepositMoneyCommand(accountId, Money.of(new BigDecimal((idx + 1) + ".00"))));
-                    eventStore.append(accountId, account.getUncommittedEvents());
-                    return true;
-                } catch (DataIntegrityViolationException e) {
-                    return false; // colisão de sequence_number detectada pelo DB — comportamento esperado
-                }
-            }));
-        }
+        Future<Boolean> f1 = pool.submit(() -> {
+            start.await();
+            try { eventStore.append(accountId, deposit1); return true; }
+            catch (DataIntegrityViolationException e) { return false; }
+        });
+        Future<Boolean> f2 = pool.submit(() -> {
+            start.await();
+            try { eventStore.append(accountId, deposit2); return true; }
+            catch (DataIntegrityViolationException e) { return false; }
+        });
 
         start.countDown();
         pool.shutdown();
 
-        long successes = futures.stream().filter(f -> { try { return f.get(); } catch (Exception e) { return false; } }).count();
-        long failures  = threads - successes;
+        boolean r1 = f1.get();
+        boolean r2 = f2.get();
 
-        // Pelo menos 1 thread teve sucesso; colisões geram falha (não perda silenciosa)
-        assertThat(successes).isGreaterThanOrEqualTo(1);
-        assertThat(successes + failures).isEqualTo(threads);
+        // Pelo menos 1 deve ter tido sucesso — sem perda silenciosa de dados
+        assertThat(r1 || r2).isTrue();
 
         var stored = repository.findByAggregateIdOrderBySequenceNumberAsc(accountId.getValue());
-        // sequence_numbers devem ser distintos — sem colisões silenciosas
-        var seqNumbers = stored.stream().map(e -> e.getSequenceNumber()).toList();
+        var seqNumbers = stored.stream().map(StoredEvent::getSequenceNumber).toList();
+        // sequence_numbers devem ser distintos — constraint uk_aggregate_sequence aplicada
         assertThat(seqNumbers).doesNotHaveDuplicates();
     }
 

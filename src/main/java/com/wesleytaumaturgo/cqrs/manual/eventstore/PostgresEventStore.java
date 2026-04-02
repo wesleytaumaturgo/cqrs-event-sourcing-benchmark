@@ -11,6 +11,7 @@ import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -50,6 +51,7 @@ public class PostgresEventStore implements EventStore {
     }
 
     @Override
+    @Transactional
     public void append(AccountId accountId, List<DomainEvent> events) {
         String id = accountId.getValue().toString();
         for (DomainEvent event : events) {
