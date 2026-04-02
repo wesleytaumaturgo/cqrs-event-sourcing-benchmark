@@ -6,7 +6,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-green?style=for-the-badge)
 ![Axon](https://img.shields.io/badge/Axon%20Framework-4.9-blue?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licença-MIT-blue?style=for-the-badge)
-![CI](https://github.com/wesleytaumaturgo/cqrs-event-sourcing-benchmark/actions/workflows/ci.yml/badge.svg?style=for-the-badge)
+![CI](https://img.shields.io/github/actions/workflow/status/wesleytaumaturgo/cqrs-event-sourcing-benchmark/ci.yml?style=for-the-badge&label=CI)
 
 ---
 
