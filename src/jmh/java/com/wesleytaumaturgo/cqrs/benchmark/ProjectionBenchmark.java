@@ -19,9 +19,10 @@ import java.util.concurrent.TimeUnit;
  *
  * Mede o tempo total de: emitir comando → projeção atualizada → leitura do saldo.
  * Em modo subscribing, a projeção é atualizada sincronamente no mesmo thread.
+ * Modos: AverageTime (média) e SampleTime (distribuição p50/p95/p99).
  * REQ-8.EARS-1
  */
-@BenchmarkMode(Mode.AverageTime)
+@BenchmarkMode({Mode.AverageTime, Mode.SampleTime})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 5, time = 1)
