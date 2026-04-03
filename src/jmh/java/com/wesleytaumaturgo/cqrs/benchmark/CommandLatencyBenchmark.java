@@ -13,10 +13,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * B1 — Latência de Comando (depósito único, Manual vs Axon).
- * Mede o tempo médio para abrir uma conta e realizar um depósito.
+ * Mede latência de comando: AverageTime (média) e SampleTime (distribuição p50/p95/p99).
  * REQ-8.EARS-1
  */
-@BenchmarkMode(Mode.AverageTime)
+@BenchmarkMode({Mode.AverageTime, Mode.SampleTime})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 5, time = 1)
