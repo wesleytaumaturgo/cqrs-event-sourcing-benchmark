@@ -1,20 +1,13 @@
 package com.wesleytaumaturgo.cqrs.manual.eventstore;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
-import com.wesleytaumaturgo.cqrs.domain.account.Money;
-import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
-import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
-import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.AccountNotFoundException;
 import com.wesleytaumaturgo.cqrs.domain.account.exceptions.OptimisticLockingException;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -78,60 +71,23 @@ public class PostgresEventStore implements EventStore {
             throw new AccountNotFoundException(accountId);
         }
         return stored.stream()
-            .map(e -> deserialize(accountId, e))
+            .map(this::deserialize)
             .toList();
     }
 
     private String serialize(DomainEvent event) {
         try {
-            if (event instanceof AccountOpenedEvent e) {
-                return objectMapper.writeValueAsString(Map.of(
-                    "ownerId", e.ownerId(),
-                    "initialBalance", e.initialBalance().getValue().toPlainString(),
-                    "occurredAt", e.occurredAt().toString()
-                ));
-            } else if (event instanceof MoneyDepositedEvent e) {
-                return objectMapper.writeValueAsString(Map.of(
-                    "amount", e.amount().getValue().toPlainString(),
-                    "occurredAt", e.occurredAt().toString()
-                ));
-            } else if (event instanceof MoneyWithdrawnEvent e) {
-                return objectMapper.writeValueAsString(Map.of(
-                    "amount", e.amount().getValue().toPlainString(),
-                    "occurredAt", e.occurredAt().toString()
-                ));
-            }
-            throw new IllegalArgumentException("Tipo de evento desconhecido: " + event.getClass().getSimpleName());
-        } catch (Exception ex) {
+            return objectMapper.writeValueAsString(event);
+        } catch (JsonProcessingException ex) {
             throw new IllegalStateException("Falha ao serializar evento: " + event.getClass().getSimpleName(), ex);
         }
     }
 
-    private DomainEvent deserialize(AccountId accountId, StoredEvent stored) {
+    private DomainEvent deserialize(StoredEvent stored) {
         try {
-            JsonNode node = objectMapper.readTree(stored.getPayload());
-            return switch (stored.getEventType()) {
-                case "AccountOpenedEvent" -> new AccountOpenedEvent(
-                    accountId,
-                    node.get("ownerId").asText(),
-                    Money.of(new BigDecimal(node.get("initialBalance").asText())),
-                    Instant.parse(node.get("occurredAt").asText())
-                );
-                case "MoneyDepositedEvent" -> new MoneyDepositedEvent(
-                    accountId,
-                    Money.of(new BigDecimal(node.get("amount").asText())),
-                    Instant.parse(node.get("occurredAt").asText())
-                );
-                case "MoneyWithdrawnEvent" -> new MoneyWithdrawnEvent(
-                    accountId,
-                    Money.of(new BigDecimal(node.get("amount").asText())),
-                    Instant.parse(node.get("occurredAt").asText())
-                );
-                default -> throw new IllegalArgumentException(
-                    "Tipo de evento desconhecido: " + stored.getEventType());
-            };
-        } catch (Exception ex) {
-            throw new IllegalStateException("Falha ao desserializar evento id=" + stored.getId(), ex);
+            return objectMapper.readValue(stored.getPayload(), DomainEvent.class);
+        } catch (JsonProcessingException ex) {
+            throw new IllegalStateException("Falha ao desserializar evento", ex);
         }
     }
 }
