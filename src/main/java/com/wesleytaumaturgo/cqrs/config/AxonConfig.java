@@ -1,11 +1,17 @@
 package com.wesleytaumaturgo.cqrs.config;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.wesleytaumaturgo.cqrs.domain.account.AccountId;
 import com.wesleytaumaturgo.cqrs.domain.account.Money;
+import com.wesleytaumaturgo.cqrs.domain.account.events.AccountOpenedEvent;
+import com.wesleytaumaturgo.cqrs.domain.account.events.DomainEvent;
+import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyDepositedEvent;
+import com.wesleytaumaturgo.cqrs.domain.account.events.MoneyWithdrawnEvent;
 import java.io.IOException;
 import java.util.UUID;
 import org.axonframework.serialization.Serializer;
@@ -24,9 +30,23 @@ import org.springframework.context.annotation.Primary;
 @Configuration
 public class AxonConfig {
 
+    /**
+     * Jackson MixIn para DomainEvent: aplica @JsonTypeInfo/@JsonSubTypes
+     * sem importar Jackson no pacote domain (mantém domínio livre de frameworks).
+     * Adicionar novo evento = nova linha aqui + nova @Type, zero mudança no EventStore.
+     */
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+    @JsonSubTypes({
+      @JsonSubTypes.Type(value = AccountOpenedEvent.class, name = "AccountOpenedEvent"),
+      @JsonSubTypes.Type(value = MoneyDepositedEvent.class, name = "MoneyDepositedEvent"),
+      @JsonSubTypes.Type(value = MoneyWithdrawnEvent.class, name = "MoneyWithdrawnEvent")
+    })
+    abstract static class DomainEventMixIn {}
+
     @Bean
     @Primary
     public Serializer axonSerializer(ObjectMapper objectMapper) {
+        objectMapper.addMixIn(DomainEvent.class, DomainEventMixIn.class);
         objectMapper.registerModule(accountIdModule());
         objectMapper.registerModule(moneyModule());
         return JacksonSerializer.builder()
@@ -50,7 +70,12 @@ public class AxonConfig {
             @Override
             public AccountId deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
                 JsonNode node = p.getCodec().readTree(p);
-                return AccountId.of(UUID.fromString(node.get("id").asText()));
+                JsonNode idNode = node.get("id");
+                if (idNode == null || idNode.isNull()) {
+                    throw com.fasterxml.jackson.databind.exc.MismatchedInputException.from(
+                        p, AccountId.class, "Missing 'id' field in AccountId JSON");
+                }
+                return AccountId.of(UUID.fromString(idNode.asText()));
             }
         });
 
