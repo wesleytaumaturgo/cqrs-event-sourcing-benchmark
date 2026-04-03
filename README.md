@@ -19,10 +19,10 @@
 | B3 Reconstituição — 100 eventos (avg ms) | ~3 ms | ~5 ms | +67% |
 | B4 Comando → projeção → leitura (avg ms) | ~9 ms | ~14 ms | +56% |
 | B5 LOC (código de produção) | ~450 linhas | ~280 linhas | **-38%** |
-| B5 Arquivos Java | 13 | 9 | **-31%** |
+| B5 Arquivos Java | 9 | 9 | **=** |
 
 > Resultados variam conforme hardware. Rode `make benchmark` para medir na sua máquina.
-> Configuração: Java 21, PostgreSQL local, JMH 3 warmup + 5 medições, fork=1.
+> Configuração: Java 21, PostgreSQL local, JMH 5 warmup + 5 medições, fork=2.
 
 ---
 
